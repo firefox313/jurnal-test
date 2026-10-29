@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Test jurnal">
+<title>Test jurnal medical</title>
+<style>
+:root{--bg:#FBF6F4;--card:#fff;--ink:#2A2230;--muted:#6B6073;--line:#EADFDB;--acc:#C23B63;--on:#fff;--ok:#2B7A4B;--bad:#B3261E;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#171218;--card:#221B25;--ink:#F4EEF3;--muted:#B5AABB;--line:#3B3140;--acc:#FF8FAB;--on:#1B1220;--ok:#6FD39A;--bad:#FF8F86;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left))}
+main{max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+h1{font-size:24px;margin:0}h2{font-size:17px;margin:0 0 8px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.sub{color:var(--muted);font-size:14px}
+label{display:block;font-weight:600;font-size:14px;margin:8px 0 4px}
+input{width:100%;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+button,a.btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 16px;border-radius:12px;border:0;background:var(--acc);color:var(--on);font:inherit;font-weight:700;text-decoration:none;cursor:pointer}
+button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+button:disabled{opacity:.5}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;background:var(--bg);border:1px solid var(--line);font-size:13px;font-weight:600}
+ul{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:8px}
+li.f{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;gap:8px;justify-content:space-between;align-items:center}
+li.f span{min-width:0;overflow-wrap:anywhere;font-size:14px}
+pre{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:300px;overflow:auto;margin:8px 0 0}
+</style>
+</head>
+<body>
+<main>
+  <div>
+    <h1>Test jurnal medical</h1>
+    <p class="sub">Pagină de verificare. Nu conține și nu cere date medicale. Scrie doar fișiere text de probă în folderul tău Drive.</p>
+    <span class="badge" id="mode"></span> <span class="badge" id="who">neconectat</span>
+  </div>
+
+  <section class="card">
+    <h2>0. Setări Google</h2>
+    <label for="cid">Client ID (din Google Cloud)</label>
+    <input id="cid" placeholder="1234…apps.googleusercontent.com" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <label for="fname">Numele folderului partajat</label>
+    <input id="fname" value="Jurnal medical familie" autocomplete="off">
+    <details style="margin-top:10px"><summary class="sub">Doar pentru testul cu permisiune limitată (opțional)</summary>
+      <label for="key">Cheie API (pentru selectorul Google)</label><input id="key" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <label for="num">Număr proiect</label><input id="num" inputmode="numeric" autocomplete="off">
+    </details>
+  </section>
+
+  <section class="card">
+    <h2>1. Conectare la Google</h2>
+    <p class="sub">Varianta completă vede folderul partajat după nume. Varianta limitată vede doar ce alegi tu cu selectorul.</p>
+    <div class="row"><button id="b-full">Conectare (permisiune completă)</button><button class="ghost" id="b-file">Conectare (permisiune limitată)</button></div>
+  </section>
+
+  <section class="card">
+    <h2>2. Folderul partajat</h2>
+    <div class="row"><button id="b-find">Caută folderul după nume</button><button class="ghost" id="b-pickf">Alege folderul (selector)</button></div>
+    <p class="sub" id="folder">Niciun folder ales.</p>
+  </section>
+
+  <section class="card">
+    <h2>3. Scrie și citește</h2>
+    <div class="row"><button id="b-write">Scrie un fișier de probă</button><button class="ghost" id="b-list">Listează fișierele din folder</button><button class="ghost" id="b-pickfile">Alege un fișier (selector)</button></div>
+    <p class="sub">Test cheie: după ce <b>amândoi</b> ați scris câte un fișier, listați. Vedeți fiecare fișierul celuilalt?</p>
+    <ul id="files"></ul>
+  </section>
+
+  <section class="card">
+    <h2>4. Criptare cu parolă</h2>
+    <label for="pw">Parolă de probă</label>
+    <input id="pw" type="text" value="parola-de-proba" autocomplete="off">
+    <div class="row"><button id="b-crypto">Testează criptarea</button></div>
+  </section>
+
+  <section class="card">
+    <h2>5. Reminder în Google Calendar</h2>
+    <p class="sub">Deschide un eveniment deja completat, peste 14 zile. Apeși „Salvează” în Calendar.</p>
+    <div class="row"><a class="btn" id="cal" target="_blank" rel="noopener">Creează eveniment de probă</a></div>
+  </section>
+
+  <section class="card">
+    <h2>Jurnal de teste</h2>
+    <p class="sub">Copiază-l și trimite-mi-l, ca să văd ce a mers și ce nu.</p>
+    <pre id="log" aria-live="polite"></pre>
+    <div class="row"><button id="b-copy">Copiază jurnalul</button></div>
+  </section>
+</main>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://apis.google.com/js/api.js" async defer></script>
+<script>
+const $=s=>document.querySelector(s);
+const LS={get:k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let token=null,scopeKind=null,me=null,folderId='',pickedFileId='';
+const standalone=()=>!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: standalone)').matches));
+function log(m){const t=new Date().toLocaleTimeString('ro-RO');const l=$('#log');l.textContent+='['+t+'] '+m+'\n';l.scrollTop=l.scrollHeight}
+['cid','fname','key','num'].forEach(id=>{const e=$('#'+id),v=LS.get('f_'+id);if(v)e.value=v;e.addEventListener('change',()=>LS.set('f_'+id,e.value.trim()))});
+$('#mode').textContent=standalone()?'Instalată pe ecranul principal':'În browser';
+log('Pagina rulează: '+(standalone()?'INSTALATĂ (standalone)':'în browser')+' | '+navigator.userAgent);
+
+async function api(url,opts){
+  const r=await fetch(url,Object.assign({headers:{Authorization:'Bearer '+token}},opts));
+  if(!r.ok){let t='';try{t=await r.text()}catch(e){}throw new Error(r.status+' '+t.slice(0,300))}
+  return r;
+}
+function connect(kind){
+  const cid=$('#cid').value.trim();LS.set('f_cid',cid);
+  if(!cid){log('Lipsește Client ID.');return}
+  if(!(window.google&&google.accounts&&google.accounts.oauth2)){log('Biblioteca Google nu s-a încărcat. Verifică conexiunea și reîncarcă.');return}
+  const scope=kind==='full'?'https://www.googleapis.com/auth/drive':'https://www.googleapis.com/auth/drive.file';
+  log('Pornesc conectarea ('+(kind==='full'?'completă':'limitată')+')…');
+  const tc=google.accounts.oauth2.initTokenClient({client_id:cid,scope:scope,
+    callback:async r=>{
+      if(r.error){log('EROARE conectare: '+r.error+' '+(r.error_description||''));return}
+      token=r.access_token;scopeKind=kind;log('Conectat. Permisiune: '+kind);
+      try{const a=await (await api('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress,displayName)')).json();me=a.user;
+        $('#who').textContent=me.emailAddress;log('Cont: '+me.emailAddress)}catch(e){log('EROARE la citirea contului: '+e.message)}
+    },
+    error_callback:e=>log('EROARE fereastră Google: '+(e.type||'')+' '+(e.message||''))});
+  tc.requestAccessToken({prompt:'select_account'});
+}
+function need(kind){if(!token){log('Conectează-te mai întâi (pasul 1).');return false}if(kind&&scopeKind!==kind){log('Această acțiune cere conectarea cu permisiune '+(kind==='full'?'completă':'limitată')+'.');return false}return true}
+async function findFolder(){
+  if(!need('full'))return;
+  const name=$('#fname').value.trim().replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  try{
+    const q=encodeURIComponent("mimeType='application/vnd.google-apps.folder' and name='"+name+"' and trashed=false");
+    const j=await (await api('https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id,name,owners(emailAddress))')).json();
+    if(!j.files.length){log('Nu am găsit niciun folder cu acest nume. E partajat cu contul acesta?');return}
+    folderId=j.files[0].id;setFolder(j.files[0].name+' (proprietar: '+((j.files[0].owners||[{}])[0].emailAddress||'?')+')');
+    log('Folder găsit: '+j.files.length+' rezultat(e). Folosesc primul.');
+  }catch(e){log('EROARE căutare folder: '+e.message)}
+}
+function setFolder(t){$('#folder').textContent='Folder ales: '+t;LS.set('f_folder',folderId)}
+function loadPicker(){return new Promise(res=>gapi.load('picker',res))}
+async function pick(kind){
+  if(!need('file'))return;
+  const key=$('#key').value.trim(),num=$('#num').value.trim();
+  if(!key||!num){log('Pentru selector completează cheia API și numărul proiectului (secțiunea 0).');return}
+  if(!(window.gapi)){log('Biblioteca selectorului nu s-a încărcat.');return}
+  try{
+    await loadPicker();
+    const mk=()=>{const v=kind==='folder'?new google.picker.DocsView(google.picker.ViewId.FOLDERS):new google.picker.DocsView();
+      if(kind==='folder'){v.setSelectFolderEnabled(true);v.setIncludeFolders(true)}return v};
+    const own=mk(),shared=mk().setOwnedByMe(false);
+    new google.picker.PickerBuilder().addView(own).addView(shared).setOAuthToken(token).setDeveloperKey(key).setAppId(num).setLocale('ro')
+      .setCallback(d=>{
+        if(d.action===google.picker.Action.PICKED){const x=d.docs[0];
+          if(kind==='folder'){folderId=x.id;setFolder(x.name);log('Folder ales cu selectorul: '+x.name)}
+          else{pickedFileId=x.id;log('Fișier ales: '+x.name);addFileRow({id:x.id,name:x.name,owners:[{emailAddress:'(ales cu selectorul)'}]},true)}
+        }else if(d.action===google.picker.Action.CANCEL)log('Selector închis fără alegere.');
+      }).build().setVisible(true);
+    log('Selectorul s-a deschis.');
+  }catch(e){log('EROARE selector: '+e.message)}
+}
+async function writeTest(){
+  if(!need())return;if(!folderId){log('Alege mai întâi folderul (pasul 2).');return}
+  const who=((me&&me.displayName)||'anonim').split(' ')[0];
+  const name='proba-'+who+'-'+new Date().toISOString().slice(11,19).replace(/:/g,'')+'.txt';
+  const b='jurnalb'+Math.random().toString(36).slice(2);
+  const body='--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify({name:name,parents:[folderId],mimeType:'text/plain'})+
+    '\r\n--'+b+'\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\nSalut de la '+who+', '+new Date().toISOString()+' ăâîșț\r\n--'+b+'--';
+  try{const r=await api('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'multipart/related; boundary='+b},body:body});
+    const j=await r.json();log('Scris: '+j.name);listFiles()}catch(e){log('EROARE scriere: '+e.message)}
+}
+function addFileRow(f,keep){
+  const ul=$('#files');if(!keep&&ul.dataset.fresh!=='1'){ul.innerHTML='';ul.dataset.fresh='1'}
+  const li=document.createElement('li');li.className='f';
+  const s=document.createElement('span');s.textContent=f.name+' · '+(((f.owners||[{}])[0]||{}).emailAddress||'?');
+  const b=document.createElement('button');b.className='ghost';b.textContent='Citește';b.onclick=()=>readFile(f.id,f.name);
+  li.append(s,b);ul.append(li);
+}
+async function listFiles(){
+  if(!need())return;if(!folderId){log('Alege mai întâi folderul (pasul 2).');return}
+  try{const q=encodeURIComponent("'"+folderId+"' in parents and trashed=false");
+    const j=await (await api('https://www.googleapis.com/drive/v3/files?q='+q+'&orderBy=createdTime%20desc&pageSize=50&fields=files(id,name,createdTime,owners(emailAddress))')).json();
+    const ul=$('#files');ul.innerHTML='';ul.dataset.fresh='1';
+    j.files.forEach(f=>addFileRow(f,true));
+    log('În folder se văd '+j.files.length+' fișiere: '+(j.files.map(f=>f.name+' ['+((f.owners||[{}])[0].emailAddress||'?')+']').join('; ')||'niciunul'));
+  }catch(e){log('EROARE listare: '+e.message)}
+}
+async function readFile(id,name){
+  try{const t=await (await api('https://www.googleapis.com/drive/v3/files/'+id+'?alt=media')).text();log('Citit '+name+': '+t.slice(0,120).replace(/\s+/g,' '))}
+  catch(e){log('EROARE citire '+name+': '+e.message)}
+}
+async function cryptoTest(){
+  try{
+    const t0=performance.now(),enc=new TextEncoder(),pw=$('#pw').value||'parola',salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+    const km=await crypto.subtle.importKey('raw',enc.encode(pw),'PBKDF2',false,['deriveKey']);
+    const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:250000,hash:'SHA-256'},km,{name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+    const plain='Text de probă: Ilinca, ăâîșț';
+    const ct=await crypto.subtle.encrypt({name:'AES-GCM',iv:iv},key,enc.encode(plain));
+    const pt=new TextDecoder().decode(await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},key,ct));
+    let bad='nu';try{const k2=await crypto.subtle.deriveKey({name:'PBKDF2',salt:salt,iterations:250000,hash:'SHA-256'},await crypto.subtle.importKey('raw',enc.encode(pw+'x'),'PBKDF2',false,['deriveKey']),{name:'AES-GCM',length:256},false,['decrypt']);await crypto.subtle.decrypt({name:'AES-GCM',iv:iv},k2,ct)}catch(e){bad='da (corect, parola greșită e respinsă)'}
+    log('Criptare: '+(pt===plain?'OK':'DIFERIT')+' | '+Math.round(performance.now()-t0)+' ms | parolă greșită respinsă: '+bad);
+  }catch(e){log('EROARE criptare: '+e.message)}
+}
+function calLink(){
+  const d=new Date(Date.now()+14*864e5),p=n=>String(n).padStart(2,'0'),ds=d.getFullYear()+p(d.getMonth()+1)+p(d.getDate());
+  const u='https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent('Control – Ilinca (probă)')+'&dates='+ds+'T090000/'+ds+'T093000&ctz=Europe/Bucharest&details='+encodeURIComponent('Eveniment de probă din aplicația Jurnal medical. Fără detalii medicale.');
+  $('#cal').href=u;
+}
+calLink();$('#cal').addEventListener('click',()=>log('Am deschis linkul de Calendar.'));
+$('#b-full').onclick=()=>connect('full');$('#b-file').onclick=()=>connect('file');
+$('#b-find').onclick=findFolder;$('#b-pickf').onclick=()=>pick('folder');$('#b-pickfile').onclick=()=>pick('file');
+$('#b-write').onclick=writeTest;$('#b-list').onclick=listFiles;$('#b-crypto').onclick=cryptoTest;
+$('#b-copy').onclick=()=>{const t=$('#log').textContent;const sel=()=>{const r=document.createRange();r.selectNodeContents($('#log'));const s=getSelection();s.removeAllRanges();s.addRange(r);log('Selectat. Copiază manual.')};
+  (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t).then(()=>log('Jurnal copiat.')):Promise.reject()).catch(sel)};
+</script>
+</body>
+</html>
